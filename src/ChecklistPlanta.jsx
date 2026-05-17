@@ -183,6 +183,10 @@ export default function ChecklistPlanta() {
 
   const allAnswered = answers.every((a) => a !== null);
   const anyKpi = Object.values(kpiResults).some((v) => v !== null);
+  const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const emailTouched = formData.email.length > 0;
+  const emailOk = isValidEmail(formData.email);
+  const formReady = formData.nombre.trim() && emailOk && formStatus !== "sending";
 
   useEffect(() => {
     if (step === 3 && resultsRef.current) {
@@ -656,6 +660,12 @@ export default function ChecklistPlanta() {
                 </div>
               ))}
 
+              {emailTouched && !emailOk && (
+                <div style={{ fontSize: 12, color: "#D4920B", marginBottom: 12, marginTop: -6 }}>
+                  Introduce un email válido (ej: tu@empresa.com)
+                </div>
+              )}
+
               {formStatus === "error" && (
                 <div style={{ fontSize: 13, color: "#D94F3B", marginBottom: 12, textAlign: "center" }}>
                   Algo ha fallado. Inténtalo de nuevo o escríbenos a contacto@madesoft.es
@@ -663,7 +673,7 @@ export default function ChecklistPlanta() {
               )}
 
               <button
-                disabled={formStatus === "sending" || !formData.nombre.trim() || !formData.email.trim()}
+                disabled={!formReady}
                 onClick={async () => {
                   setFormStatus("sending");
                   try {
@@ -697,8 +707,8 @@ export default function ChecklistPlanta() {
                   color: "#1A1917",
                   fontSize: 15,
                   marginTop: 6,
-                  opacity: (!formData.nombre.trim() || !formData.email.trim() || formStatus === "sending") ? 0.5 : 1,
-                  cursor: (!formData.nombre.trim() || !formData.email.trim() || formStatus === "sending") ? "not-allowed" : "pointer",
+                  opacity: !formReady ? 0.5 : 1,
+                  cursor: !formReady ? "not-allowed" : "pointer",
                 }}
               >
                 {formStatus === "sending" ? "Enviando..." : "Quiero mi lectura personalizada"}
